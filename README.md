@@ -131,8 +131,7 @@ Server sẽ trả về cho ta là Please don't hack me. Lúc này ta cần debug
 
 Vào ```MyHTTPClient.java```, đặt 1 breakpoint ở dòng 28 xem ```readObject()``` có được gọi đến và các giá trị ta tạo có được gán cho biến ```host``` hay không.
 
-<img width="1232" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 16 38" src="https://github.com/user-attachments/assets/48c7e8e1-5030-4e7e-8e87-
-572b521cdd6c">
+<img width="1232" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 16 38" src="https://github.com/user-attachments/assets/dfa8354b-3b1e-4cd7-b41e-f7e8153fec1c">
 
 Sau đó rebuild lại level 2 và reload lại trang web. Sau khi reload thì chương trình sẽ dừng ngay ở vị trí ta đặt breakpoint.
 
@@ -141,3 +140,21 @@ Sau đó rebuild lại level 2 và reload lại trang web. Sau khi reload thì c
 Kiểm tra thì các giá trị ta đặt đã được gán vào biến host.
 
 <img width="332" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 18 38" src="https://github.com/user-attachments/assets/a8fe99aa-052a-4489-bbcd-cd90655461c7">
+
+Vậy là chương trình đã được gọi đến ```readObject()``` nhưng đã bị huỷ ngay sau đó. Vậy có nghĩa là ta sẽ sử dụng được các lệnh OS command. Ta sẽ sử dụng 1 cách khác là đưa những thông tin ta muốn ra bên ngoài server. Ở đây ta sẽ sử dụng webhook là nơi sẽ đón nhận các gói tin ta gửi đi.
+
+<img width="1192" alt="Ảnh chụp Màn hình 2024-10-30 lúc 12 01 25" src="https://github.com/user-attachments/assets/d437c10f-8c63-4a54-99a5-87f2595043bd">
+
+Lý do mình dùng wget thay vì curl tại vì server không có curl :))))
+
+Rebuild ```exploit-tool``` và copy gán vào cookie level 2. Sau đó try cập vào webhook. Ta sẽ thấy được 1 request được gửi tới.
+
+<img width="1440" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 21 28" src="https://github.com/user-attachments/assets/bdd1612c-2c08-4ee9-85d6-73a5f0a9a545">
+
+Tương tự, thêm ```method``` và ```body-file``` cho wget. Rebuil và gán lại cho cookie.
+
+<img width="1122" alt="Ảnh chụp Màn hình 2024-10-30 lúc 12 01 51" src="https://github.com/user-attachments/assets/682ff83e-f1ff-4ea8-82de-a856673335ad">
+
+Ở webhook ta sẽ nhận được 1 request với method POST, các values trong đó sẽ chứa các tên thư mục root. => RCE thành công.
+
+## Level 3.
