@@ -105,3 +105,39 @@ Thành công chạy lệnh OS command mong muốn. => RCE thành công.
 
 ## Level 2:
 
+Ở level 2, chương trình có thêm các class khác, ở đây ta sẽ chú ý đến class ```MyHTTPClient```, trong class có sử dụng chứng năng kiểm tra ```HTTPConnection``` bằng cách sử dụng OS command ```ping``` và ```curl```(dòng 16 và 28)
+
+<img width="1330" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 11 19" src="https://github.com/user-attachments/assets/d2f3e61c-d3bd-4d0c-ac38-3a3133f69b4c">
+
+Người dùng sẽ gửi cho server giá trị host thông qua serialize data, server sẽ tiến hành deserialize data để đọc và truyền giá trị này vào OS command.
+
+Ý tưởng khai thác: Untrusted data rơi vào magic method ```readObject```, chương trình sẽ deserialize data và truyền giá trị host vào OS command -> Các yếu tố này kết hợp dễ dàng tấn công OS command injection thông qua biến host.
+
+Copy file ```MyHTTPClient.java``` sang thư mục ```exploit-tool```, VS Code sẽ báo lỗi vì class ```MyHTTPClient``` được kế thừa từ ```HTTPConnection``` nên ta copy luôn cả file ```HTTPConnection.java```.
+
+<img width="1407" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 12 18" src="https://github.com/user-attachments/assets/d4ebb1b5-a2f4-48a7-9555-2b33f503e656">
+
+Sau đó ta tiến hành khởi tạo các tham số để tạo ra payload.
+
+Tạo object ```MyHTTPClient client = new MyHTTPClient("xxxx; id");```. Sau đó in ra output của client để lấy được payload.
+
+<img width="974" alt="Ảnh chụp Màn hình 2024-10-30 lúc 12 00 55" src="https://github.com/user-attachments/assets/b5622277-a78e-42ba-95d2-db93d748460a">
+
+Tiếp theo là lấy payload gán vào cookie ở level 2.
+
+<img width="1078" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 16 06" src="https://github.com/user-attachments/assets/9c8ee7ed-0165-4a75-9bda-beb59371e19e">
+
+Server sẽ trả về cho ta là Please don't hack me. Lúc này ta cần debug xem đã xảy ra chuyện gì.
+
+Vào ```MyHTTPClient.java```, đặt 1 breakpoint ở dòng 28 xem ```readObject()``` có được gọi đến và các giá trị ta tạo có được gán cho biến ```host``` hay không.
+
+<img width="1232" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 16 38" src="https://github.com/user-attachments/assets/48c7e8e1-5030-4e7e-8e87-
+572b521cdd6c">
+
+Sau đó rebuild lại level 2 và reload lại trang web. Sau khi reload thì chương trình sẽ dừng ngay ở vị trí ta đặt breakpoint.
+
+<img width="1387" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 17 18" src="https://github.com/user-attachments/assets/6ce8ccf8-02ff-48ba-aeef-3742be4441b6">
+
+Kiểm tra thì các giá trị ta đặt đã được gán vào biến host.
+
+<img width="332" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 18 38" src="https://github.com/user-attachments/assets/a8fe99aa-052a-4489-bbcd-cd90655461c7">
