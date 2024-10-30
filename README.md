@@ -190,3 +190,39 @@ Gán vào cookie user ở level 3, vào webhook là ta sẽ thấy được requ
 Tương tự như level 2, thêm ```method``` và ```body-file``` cho wget là thành công RCE.
 
 ## Level 4:
+
+Ta chỉ thấy 2 file chính là ```HelloServlet.java``` và ```User.java```
+
+Nếu như ở những các level trước có những class mà ta có thể lợi dụng để tấn công. Vậy level này thì sao? Ta chỉ có mỗi class ```User```.
+
+Nhưng ngoài code của anh dev, thì trong chương trình này còn có code của thư viện. Liệu ta có thể tìm những class nguy hiểm hay gadget chain trong thư viện để thực hiện tấn công không.
+
+Đầu tiên ta phải biết chương trình đang sử dụng thư viện gì. Thông tin này được thể hiện trong file ```pom.xml```.
+
+<img width="978" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 36 39" src="https://github.com/user-attachments/assets/243fc59b-76af-4751-a7e1-e463c345d5f8">
+
+Ta thấy chương trình đang sử dụng thư viện ```commons-collections version 3.1```.
+
+Để tìm kiếm 1 gadget chain trong thư viện mất rất nhiều thời gian, nên ta sẽ sử dụng ysoerial để tạo ra gadget chain.
+
+<img width="1436" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 37 17" src="https://github.com/user-attachments/assets/7dc45274-e2cc-4f1a-9426-e1ca5b9745fb">
+
+Cú pháp để sử dụng ysoserial:
+
+java -jar ysoserial.jar [payload] '[command]'
+
+<img width="1195" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 39 54" src="https://github.com/user-attachments/assets/f4360dad-29f0-488f-923d-ebad84b1f16b">
+
+Ta sẽ sử dụng ysoserial với payload là CommonsCollection5.
+
+<img width="1243" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 41 23" src="https://github.com/user-attachments/assets/befc3605-b3f4-4831-94ac-303b553c3dae">
+
+Và phải endcode base64 nữa nhé :))))
+
+<img width="1247" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 41 50" src="https://github.com/user-attachments/assets/21b72614-cc11-4a1e-97a7-d42b2b03f763">
+
+Cuối cùng ta gán giá trị này vào cookie user nữa là xong. Webhook sẽ nhận được request mà server gửi đến.
+
+<img width="1440" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 42 19" src="https://github.com/user-attachments/assets/8a990266-938f-46b7-87dc-61880949b2a6">
+
+=> Thành công RCE.
