@@ -151,10 +151,42 @@ Rebuild ```exploit-tool``` và copy gán vào cookie level 2. Sau đó try cập
 
 <img width="1440" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 21 28" src="https://github.com/user-attachments/assets/bdd1612c-2c08-4ee9-85d6-73a5f0a9a545">
 
-Tương tự, thêm ```method``` và ```body-file``` cho wget. Rebuil và gán lại cho cookie.
+Tương tự, thêm ```method``` và ```body-file``` cho wget. Rebuild và gán lại cho cookie.
 
 <img width="1122" alt="Ảnh chụp Màn hình 2024-10-30 lúc 12 01 51" src="https://github.com/user-attachments/assets/682ff83e-f1ff-4ea8-82de-a856673335ad">
 
 Ở webhook ta sẽ nhận được 1 request với method POST, các values trong đó sẽ chứa các tên thư mục root. => RCE thành công.
 
-## Level 3.
+## Level 3:
+
+Ở level 3 thì cũng sẽ tương tự level 2, nhưng lúc này method ```readObject()``` đã thay đổi thành ```connect```.
+
+<img width="881" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 26 58" src="https://github.com/user-attachments/assets/8018f635-1bac-4b99-b9e2-09f53069a7bd">
+
+Làm thế nào để có thể gọi đến ```connect```. Ta search xem có class nào gọi đến hàm này hay không.
+
+<img width="328" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 27 18" src="https://github.com/user-attachments/assets/f95a42f9-fbc8-414a-8058-f1d429bb602c">
+
+Ta thấy được có class ```TestConnection``` có magic method ```readObject()``` gọi đến hàm này.
+
+<img width="966" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 27 26" src="https://github.com/user-attachments/assets/a8aea351-6d98-4200-a1cd-bb7e697ae0cc">
+
+Ý tưởng để khai thác level này là ta sẽ lợi dụng ```MyHTTPClient``` có hàm ```connect()``` execute untrusted data. Tạo thêm object ```TestConnection``` vì trong đó có ```readObject()``` để gọi hàm ```connect()```
+
+Để cho VersionUID không bị lỗi thì ta nên xoá các file của level trước và copy các file cần tạo payload sang.
+
+Sau đó khởi tạo các object như bên dưới.
+
+<img width="1371" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 30 52" src="https://github.com/user-attachments/assets/333073dc-934f-47ce-be1c-3d9262acd2ab">
+
+Cookie ở dạng serialize như sau:
+
+<img width="1437" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 31 13" src="https://github.com/user-attachments/assets/f094d53a-600f-48e1-98f0-c766d988289d">
+
+Gán vào cookie user ở level 3, vào webhook là ta sẽ thấy được request từ server.
+
+<img width="1440" alt="Ảnh chụp Màn hình 2024-10-29 lúc 23 33 51" src="https://github.com/user-attachments/assets/49b38680-f278-4bd9-aad9-5b75b0219727">
+
+Tương tự như level 2, thêm ```method``` và ```body-file``` cho wget là thành công RCE.
+
+## Level 4:
